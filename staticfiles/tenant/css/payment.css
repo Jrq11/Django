@@ -193,7 +193,8 @@ th, td {
     display: inline-block;
 }
 
-.badge.paid { background: #d4edda; color: green; }
+.badge.paid { background: green; color: white; }
+.badge.overdue {background: red; color: white;}
 
 /* Download Button Styling */
 .download-btn {
