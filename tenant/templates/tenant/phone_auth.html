@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Authentication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../tenant_styling/phone_auth.css">
+</head>
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-container">
+            <div class="logo">
+                <img src="../img/Logo.png" alt="AC Logo">
+            </div>
+            <h2>AUTHENTICATION</h2>
+            <p class="auth-subtext">This step shows that it's really you trying to sign in.</p>
+
+            <div class="auth-toggle">
+                <a href="phone_auth.html"><button class="active">Phone Number</button></a>
+                <a href="email_auth.html"><button>Email Address</button></a>
+            </div>
+
+            <p class="input-instruction">Enter your phone number so we can text you a verification code.</p>
+
+            <div class="phone-container">
+                <div class="country-code">+63</div>
+                <input type="text" id="phoneInput" placeholder="9123456789" required>
+            </div>
+
+            <button class="continue-btn" onclick="redirectToPhoneOTP()">CONTINUE</button>
+        </div>
+    </div>
+
+    <script>
+        function redirectToPhoneOTP() {
+            var phoneNumber = document.getElementById("phoneInput").value.trim();
+            
+            // Validate phone number: Should be exactly 10 digits and start with 9 (e.g., 9123456789)
+            if (!/^[9]\d{9}$/.test(phoneNumber)) {
+                alert("Please enter a valid 10-digit phone number starting with 9.");
+                return;
+            }
+
+            // Redirect to phone_otp.html with the number in URL
+            window.location.href = "phone_otp.html?phone=" + encodeURIComponent(phoneNumber);
+        }
+    </script>
+</body>
+</html>

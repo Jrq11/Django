@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rooms</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/rooms.css' %}" />
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <img src="{% static 'dashboard/img/Logo.png' %}" alt="Admin Logo">
+        <ul>
+            <li><a href="{% url 'landlord:main_dashboard' %}">Home</a></li>
+            <li><a href="{% url 'landlord:message' %}">Messages</a></li>
+            <li><a href="{% url 'landlord:reports' %}">Reports</a></li>
+            <li><a href="{% url 'landlord:payments' %}">Payments</a></li>
+            <li class="active"><a href="{% url 'landlord:rooms' %}">Rooms</a></li>
+            <li><a href="{% url 'landlord:tenants' %}">Tenants</a></li>
+            <li><a href="{% url 'landlord:sales' %}">Sales</a></li>
+        </ul>   
+        <button class="logout-btn" onclick="window.location.href='{% url 'landlord:logout' %}';">
+            LOG OUT
+        </button>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <span class="date">{% now 'l, F j, Y' %}</span>
+        </div>
+
+        {% if pending_requests %}
+        <div class="room-alert">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>You have {{ pending_requests.count }} rooms that require urgent action!</span>
+            <button class="view-details-btn" onclick="window.location.href='{% url 'landlord:reports' %}';">View details</button>
+        </div>
+        {% endif %}
+
+        <div class="room-tabs">
+            <a href="?filter=all&sort_by={{ sort_by }}" class="tab-btn {% if room_filter == 'all' %}active{% endif %}" style="text-decoration: none;">
+                All Rooms ({{ all_count }})
+            </a>
+            <a href="?filter=occupied&sort_by={{ sort_by }}" class="tab-btn {% if room_filter == 'occupied' %}active{% endif %}" style="text-decoration: none;">
+                Occupied ({{ occupied_count }})
+            </a>
+            <a href="?filter=vacant&sort_by={{ sort_by }}" class="tab-btn {% if room_filter == 'vacant' %}active{% endif %}" style="text-decoration: none;">
+                Vacant Rooms ({{ vacant_count }})
+            </a>
+        </div>
+
+        <div class="room-actions">
+            <button class="add-room-btn" onclick="window.location.href='{% url 'landlord:add-room' %}';">
+                <i class="fas fa-plus"></i> Add a new room</button>
+        </div>
+
+        <div class="room-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Room No</th>
+                        <th>Room Type</th>
+                        <th>Capacity</th>
+                        <th>Availability</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in rooms %}
+                        <tr>
+                            <td><input type="checkbox" /></td>
+                            <td>{{ room.room_number }}</td>
+                            <td>{{ room.room_type }}</td>
+                            <td>{{ room.capacity }}</td>
+                            <td>
+                                <span class="status {% if room.availability == 'Occupied' %}occupied{% else %}vacant{% endif %}">
+                                    {{ room.availability }}
+                                </span>
+                            </td>
+                            <td>{{ room.description }}</td>
+                            <td>
+                                <a href="{% url 'landlord:edit_room' room.id %}"><i class="fas fa-edit action-icon"></i></a>
+                                <form action="{% url 'landlord:room-delete' room.id %}" method="POST" onsubmit="return confirmDelete(event, this);" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit">
+                                        <i class="fas fa-trash-alt action-icon"></i> Delete
+                                    </button>
+                                </form>
+                                
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align: center;">No rooms available</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                
+                
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.tab-btn');
+
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filter = button.getAttribute('data-filter');
+
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+
+                    const currentUrl = window.location.href.split('?')[0];
+                    const newUrl = `${currentUrl}?filter=${filter}&sort_by={{ sort_by }}`;
+
+                    fetch(newUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelector('tbody').innerHTML = data.rooms_html;
+                    });
+                });
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const tableRows = document.querySelectorAll('.room-table tbody tr');
+    
+ 
+            searchInput.addEventListener('input', function () {
+                const searchTerm = searchInput.value.toLowerCase();
+                tableRows.forEach(function (row) {
+                    const roomNumber = row.cells[1].textContent.toLowerCase();
+                    const roomType = row.cells[2].textContent.toLowerCase();
+                    const capacity = row.cells[3].textContent.toLowerCase();
+                    const availability = row.cells[4].textContent.toLowerCase();
+                    const description = row.cells[5].textContent.toLowerCase();
+    
+                    if (
+                        roomNumber.includes(searchTerm) ||
+                        roomType.includes(searchTerm) ||
+                        capacity.includes(searchTerm) ||
+                        availability.includes(searchTerm) ||
+                        description.includes(searchTerm)
+                    ) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+
+    
+    
+</body>

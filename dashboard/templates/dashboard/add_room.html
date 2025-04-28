@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Room</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/edit_room.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div class="sidebar">
+        <img src="{% static 'dashboard/img/Logo.png' %}" alt="Admin Logo">
+        <ul>
+            <li><a href="{% url 'landlord:main_dashboard' %}">Home</a></li>
+            <li><a href="{% url 'landlord:reports' %}">Reports</a></li>
+            <li><a href="{% url 'landlord:payments' %}">Payments</a></li>
+            <li class="active"><a href="{% url 'landlord:rooms' %}">Rooms</a></li>
+            <li><a href="{% url 'landlord:tenants' %}">Tenants</a></li>
+            <li><a href="{% url 'landlord:sales' %}">Sales</a></li>
+        </ul>
+        <button class="logout-btn" onclick="window.location.href='{% url 'landlord:logout' %}';">
+            LOG OUT
+        </button>
+    </div>
+
+    <div class="main-content">
+        <div class="card">
+            <div class="header">
+                <a href="{% url 'landlord:rooms' %}" class="back-button"><i class="fas fa-arrow-left"></i></a>
+                <h1>Add Room    {{ room.room_number }}</h1>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="room-section">
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                
+                    <br>
+                
+                    <div class="room-details">
+                        <h3>Room Details <i class="fas fa-question-circle"></i></h3>
+                        <br>
+                
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Room number *</label>
+                                <input type="text" name="room_number" placeholder="Enter room number" value="{{ form.room_number.value|default:'' }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Availability *</label>
+                                <select name="availability">
+                                    <option value="Vacant" {% if form.reservation_status.value == "Vacant" %}selected{% endif %}>Vacant</option>
+                                    <option value="Active" {% if form.reservation_status.value == "Active" %}selected{% endif %}>Active</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Room type *</label>
+                                <select name="room_type">
+                                    <option value="Single" {% if form.room_type.value == "Single" %}selected{% endif %}>Single</option>
+                                    <option value="Double" {% if form.room_type.value == "Double" %}selected{% endif %}>Double</option>
+                                    <option value="Suite" {% if form.room_type.value == "Suite" %}selected{% endif %}>Suite</option>
+                                </select>
+                            </div>
+                        </div>
+                
+                        <br>
+                
+                        <div class="form-grid two-columns">
+                            <div class="form-group">
+                                <label>Room capacity *</label>
+                                <input type="text" name="capacity" placeholder="Enter capacity" value="{{ form.capacity.value|default:'' }}">
+                            </div>        
+                        <br>
+                
+                        <div class="form-grid single-column">
+                            <div class="form-group description">
+                                <label>Room description *</label>
+                                <textarea name="description" rows="3">{{ form.description.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div class="divider"></div>
+                
+                    <div class="action-buttons">
+                        <button type="submit" class="save-btn">Save Changes</button>
+                        <button type="button" class="cancel-btn" onclick="window.history.back();">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

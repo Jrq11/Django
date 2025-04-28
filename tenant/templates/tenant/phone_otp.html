@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Verification</title>
+    <link rel="stylesheet" href="../tenant_styling/phone_otp.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">
+            <img src="../img/Logo.png" alt="AC Logo">
+        </div>
+        <h2>VERIFICATION</h2>
+        <p class="auth-subtext">This step shows that it's really you trying to sign in.</p>
+
+        <div class="auth-toggle">
+          <a href="phone_auth.html"><button class="active">Phone Number</button></a>
+          <a href="email_auth.html"><button>Email Address</button></a>
+      </div>
+
+        <p class="auth-instruction">
+            Enter the authentication code sent to number <strong id="maskedPhone">+639*******89</strong>
+        </p>
+
+        <p class="auth-instruction">Verification code</p>
+
+        <form class="auth-form">
+            <div class="otp-container">
+                <input type="text" maxlength="1" required>
+                <input type="text" maxlength="1" required>
+                <input type="text" maxlength="1" required>
+                <input type="text" maxlength="1" required>
+                <input type="text" maxlength="1" required>
+            </div>
+
+            <p class="resend-text">
+                It may take a while to receive the code. Didn't receive the code? <a href="#">Resend</a>
+            </p>
+
+            <button type="submit" class="verify-btn">VERIFY</button>
+        </form>
+    </div>
+
+    <script>
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function maskPhoneNumber(phone) {
+            if (!phone) return "+63*********";
+            return "+63" + phone.substring(0, 1) + "*******" + phone.substring(phone.length - 2);
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            let phone = getQueryParam("phone");
+            document.getElementById("maskedPhone").innerHTML = maskPhoneNumber(phone);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+
+/* Sidebar Style */
+.sidebar {
+    width: 250px; /* Full width of sidebar when expanded */
+    background: #dfdede;
+    color: black;
+    height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+    transition: width 0.3s ease;
+    z-index: 100;
+}
+
+/* Collapsed Sidebar (only for mobile) */
+.sidebar.collapsed {
+    width: 0; /* Fully collapse the sidebar */
+    padding: 0; /* Remove padding when collapsed */
+}
+
+/* Sidebar content when collapsed (hide everything except the hamburger button) */
+.sidebar.collapsed .logo,
+.sidebar.collapsed nav,
+.sidebar.collapsed .logout-btn {
+    display: none; /* Hide all content except for the hamburger button */
+}
+
+/* Ensure hamburger button stays visible on mobile */
+.sidebar.collapsed .toggle-btn {
+    display: block;
+    position: fixed;
+    top: 37px;
+    left: 30px;
+    z-index: 100;
+}
+
+/* For Mobile: Sidebar is collapsed by default */
+@media (max-width: 768px) {
+    /* Sidebar starts collapsed on mobile */
+    .sidebar {
+        width: 0;  /* Sidebar starts collapsed */
+        padding: 0;  /* No padding when collapsed */
+    }
+
+    /* Show the hamburger toggle button on mobile */
+    .toggle-btn {
+        display: block;
+        position: fixed;
+        top: 37px;
+        left: 30px;
+        z-index: 101; /* Ensure it's above the sidebar */
+    }
+
+    /* Sidebar content (logo, nav, logout button) hidden when collapsed */
+    .sidebar.collapsed .logo,
+    .sidebar.collapsed nav,
+    .sidebar.collapsed .logout-btn {
+        display: none;
+    }
+
+    /* Ensure main content takes full width when sidebar is collapsed */
+    .sidebar + .main-content {
+        margin-left: 0; /* No margin for collapsed sidebar */
+    }
+
+    .main-content {
+        margin-left: 0; /* No space for the sidebar when collapsed */
+    }
+}
+
+/* For Desktop: Sidebar stays expanded */
+@media (min-width: 769px) {
+    .sidebar {
+        width: 250px; /* Sidebar is expanded on desktop */
+    }
+
+    .main-content {
+        margin-left: 250px; /* Content shifts to the right */
+    }
+
+    /* Hide the hamburger button on desktop */
+    .toggle-btn {
+        display: none;
+    }
+
+    /* Sidebar links show text on desktop */
+    .sidebar nav ul li a {
+        text-indent: 0; /* Show text on desktop */
+    }
+}
+
+.in-progress {
+    background:orange;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.unread-count {
+    background-color: #e74c3c;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    padding: 4px 7px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.65">
+    <title>Maintenance</title>
+    <link rel="stylesheet" href="{% static 'tenant/css/maintenance.css' %}">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <button class="toggle-btn" id="toggleBtn">☰</button>
+        
+            <div class="logo">
+                <img src="{% static 'tenant/img/Logo.png' %}" alt="Logo">
+            </div>
+            <nav>
+                <ul>
+                    <li class="active"><a href="{% url 'tenant:dashboard' %}">HOME</a></li>
+                    <li><a href="{% url 'tenant:profile' %}">PROFILE</a></li>
+                    <li>
+                        <a href="{% url 'tenant:message' %}">
+                            MESSAGE
+                            {% if unread_messages_count > 0 %}
+                                <span class="unread-count">{{ unread_messages_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li><a href="{% url 'tenant:payment' %}">PAYMENTS</a></li>
+                    <li><a href="{% url 'tenant:maintenance' %}">MAINTENANCE</a></li>
+                </ul>
+            </nav>
+            <button class="logout-btn" onclick="window.location.href='{% url 'tenant:logout' %}';">
+                LOG OUT
+            </button>
+        </div>
+        
+        <script>
+            const toggleBtn = document.getElementById('toggleBtn');
+            const sidebar = document.getElementById('sidebar');
+        
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+        </script>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <p class="date">{% now "l, F j, Y" %}</p>
+                <i class="fa-regular fa-bell"></i>
+            </div>
+
+            <div class="top-container">
+                <button class="request-btn" onclick="window.location.href='{% url 'tenant:maintenance_req' %}'">
+                    Maintenance Request
+                </button>
+            </div>
+            
+            <!-- Maintenance Requests Table -->
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date Created</th>
+                            <th>Incident Location</th>
+                            <th>Type of Issue</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in maintenance_requests %}
+                            <tr>
+                                <td>{{ request.requested_at|date:"m-d-Y h:i A" }}</td>
+                                <td>
+                                    {% for location in request.locations.all %}
+                                        {{ location.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for issue in request.issues.all %}
+                                        {{ issue.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{{ request.description }}</td>
+                                <td>
+                                    {% if request.status == 'pending' %}
+                                        <span class="pending">Pending</span>
+                                    {% elif request.status == 'in_progress' %}
+                                        <span class="in-progress">In Progress</span>
+                                    {% elif request.status == 'fixed' %}
+                                        <span class="completed">Fixed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5">You don't have any maintenance requests yet.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>            
+
+        </main>
+    </div>
+
+</body>
+</html>

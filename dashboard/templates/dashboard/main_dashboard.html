@@ -1,0 +1,145 @@
+{% load static %}
+{% load currency_filter %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        .unread-badge {
+            background-color: #e74c3c;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 50%;
+            padding: 4px 7px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Dashboard</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<body>
+    <div class="sidebar">
+        <img src="{% static 'dashboard/img/Logo.png' %}" alt="Admin Logo">
+        <ul>
+            <li class="active"><a href="{% url 'landlord:main_dashboard' %}">Home</a></li>
+            <li>
+                <a href="{% url 'landlord:message' %}">
+                    Messages
+                    {% if unread_messages_count > 0 %}
+                        <span class="unread-badge">{{ unread_messages_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li><a href="{% url 'landlord:reports' %}">Reports</a></li>
+            <li><a href="{% url 'landlord:payments' %}">Payments</a></li>
+            <li><a href="{% url 'landlord:rooms' %}">Rooms</a></li>
+            <li><a href="{% url 'landlord:tenants' %}">Tenants</a></li>
+            <li><a href="{% url 'landlord:sales' %}">Sales</a></li>
+        </ul>        
+        <button class="logout-btn" onclick="window.location.href='{% url 'landlord:logout' %}';">
+            LOG OUT
+        </button>
+    </div>
+    
+    
+
+    <div class="main-content">
+        <div class="top-bar">
+            <span class="date">{% now "l, F j, Y" %}</span>       
+        </div>
+
+        {% if pending_requests %}
+        <div class="room-alert">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>You have {{ pending_requests.count }} rooms that require urgent action!</span>
+            <button class="view-details-btn" onclick="window.location.href='{% url 'landlord:reports' %}';">View details</button>
+        </div>
+        {% endif %}
+
+        <div class="summary-cards">
+            <div class="card" onclick="redirectToSales()" style="cursor: pointer;">
+                <p>Annual Income</p>
+                {% load humanize %}
+                <h2>₱{{ total_sales_for_year|default_if_none:"0"|floatformat:2|intcomma }}</h2>
+            </div>
+            <script>
+                function redirectToSales() {
+                    window.location.href = "{% url 'landlord:sales' %}";
+                }
+            </script>
+
+            <div class="card" onclick="redirectToRooms()" style="cursor: pointer;">
+                <p>Total Unit Available</p>
+                <h2>{{ total_unit }}</h2>
+            </div>
+            <script>
+                function redirectToRooms() {
+                    window.location.href = "{% url 'landlord:rooms' %}";
+                }
+            </script>
+
+            <div class="card" onclick="redirectToTenants()" style="cursor: pointer">
+                <p>No. of Tenants</p>
+                <h2>{{ tenant_count }}</h2>
+            </div>
+            <script>
+                function redirectToTenants() {
+                    window.location.href = "{% url 'landlord:tenants' %}";
+                }
+            </script>
+        </div>
+
+        <div class="stats-container">
+            <div class="chart-box">
+                <p>Occupancy Statistics</p>
+                <canvas id="occupancyChart"></canvas>
+            </div>
+            <div class="tenant-report">
+                <p>Tenant's Report</p>
+                <ul>
+                    {% for report in reports %}
+                        <li>
+                            {{ report.full_name|title }}<br>
+                            Issue: {{ report.issue }}
+                            <span class="room">Room: {{ report.room_number }}</span><br>
+                        </li>
+                    {% empty %}
+                        <li>No reports found.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('occupancyChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Occupancy Rate',
+                    data: [15, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 20
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

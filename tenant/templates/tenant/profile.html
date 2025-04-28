@@ -1,0 +1,230 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+
+    /* Sidebar Style */
+.sidebar {
+    width: 250px; /* Full width of sidebar when expanded */
+    background: #dfdede;
+    color: black;
+    height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+    transition: width 0.3s ease;
+    z-index: 100;
+}
+
+
+/* Collapsed Sidebar (only for mobile) */
+.sidebar.collapsed {
+    width: 0; /* Fully collapse the sidebar */
+    padding: 0; /* Remove padding when collapsed */
+}
+
+/* Sidebar content when collapsed (hide everything except the hamburger button) */
+.sidebar.collapsed .logo,
+.sidebar.collapsed nav,
+.sidebar.collapsed .logout-btn {
+    display: none; /* Hide all content except for the hamburger button */
+}
+
+/* Ensure hamburger button stays visible on mobile */
+.sidebar.collapsed .toggle-btn {
+    display: block;
+    position: fixed;
+    top: 25px;
+    left: 30px;
+    z-index: 100;
+}
+
+/* For Mobile: Display the sidebar toggle button */
+@media (max-width: 768px) {
+    .toggle-btn {
+        display: block; /* Show the button only on mobile */
+    }
+
+    /* Sidebar on mobile will shrink/expand */
+    .sidebar.collapsed {
+        width: 0; /* Fully collapse on mobile */
+    }
+
+    .sidebar.collapsed .logo,
+    .sidebar.collapsed nav,
+    .sidebar.collapsed .logout-btn {
+        display: none; /* Hide sidebar content when collapsed */
+    }
+
+    .sidebar + .main-content {
+        margin-left: 0; /* No margin for collapsed sidebar */
+    }
+
+    .main-content {
+        margin-left: 0;
+        transform: scale(0.9);  /* Scale the content down by 10% */
+        transform-origin: top left; /* No space for the sidebar when collapsed */
+    }
+}
+
+/* For Desktop: Sidebar stays expanded */
+@media (min-width: 769px) {
+
+    .body{
+        zoom:0.7;
+    }
+    .sidebar {
+        width: 250px; /* Keep the sidebar fully expanded */
+    }
+
+    .main-content {
+        margin-left: 250px; /* Ensure content is not hidden behind sidebar */
+    }
+
+    /* Hide the hamburger button on desktop */
+    .toggle-btn {
+        display: none;
+    }
+
+    /* Sidebar links show text on desktop */
+    .sidebar nav ul li a {
+        text-indent: 0; /* Show text */
+    }
+}
+
+    .unread-count {
+        background-color: #e74c3c;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 50%;
+        padding: 4px 7px;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.7">
+    <title>Profile</title>
+    <link rel="stylesheet" href="{% static 'tenant/css/profile.css' %}">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <button class="toggle-btn" id="toggleBtn">☰</button>
+        
+            <div class="logo">
+                <img src="{% static 'tenant/img/Logo.png' %}" alt="Logo">
+            </div>
+            <nav>
+                <ul>
+                    <li class="active"><a href="{% url 'tenant:dashboard' %}">HOME</a></li>
+                    <li><a href="{% url 'tenant:profile' %}">PROFILE</a></li>
+                    <li>
+                        <a href="{% url 'tenant:message' %}">
+                            MESSAGE
+                            {% if unread_messages_count > 0 %}
+                                <span class="unread-count">{{ unread_messages_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li><a href="{% url 'tenant:payment' %}">PAYMENTS</a></li>
+                    <li><a href="{% url 'tenant:maintenance' %}">MAINTENANCE</a></li>
+                </ul>
+            </nav>
+            <button class="logout-btn" onclick="window.location.href='{% url 'tenant:logout' %}';">
+                LOG OUT
+            </button>
+        </div>
+        
+        <script>
+            const toggleBtn = document.getElementById('toggleBtn');
+            const sidebar = document.getElementById('sidebar');
+        
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+        </script>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <p class="title"> </p>
+                <p class="date">{% now "l, F j, Y" %}</p>
+                <i class="fa-regular fa-bell"></i>
+            </div>
+
+            <div class="profile-card">
+                <img src="{% static 'tenant/img/Avatar.png' %}" alt="Profile" class="profile-img">
+                <div class="profile-info">
+                    <h2>{{ tenant.full_name|title }}</h2>
+                    <p>Room No: {{tenant.room_number.room_number }}</p>
+                </div>
+                <!--<button class="edit-btn"><i class="fa-solid fa-pen"></i> Edit</button> -->
+            </div>
+
+            <div class="info-card">
+                <div class="info-header">
+                    <h3>Personal Information</h3>
+                    <button class="edit-btn" onclick="window.location.href='{% url 'tenant:edit_profile' %}'">
+                        <i class="fa-solid fa-pen"></i> Edit
+                    </button>
+                </div>
+            
+                <div class="info-section">
+                    <h4>Basic Information:</h4>
+                    <p><strong>First Name:</strong> {{ user_profile.first_name|title|default:"" }}</p>
+                    <p><strong>Middle Name:</strong> {{ user_profile.middle_name|title|default:"" }}</p>
+                    <p><strong>Last Name:</strong> {{ user_profile.last_name|title|default:"" }}</p>
+                    <p><strong>Birthday:</strong> {{ user_profile.birthday|date:"F j, Y"|default:"" }}</p>
+                    <p><strong>Gender:</strong> {{ user_profile.get_gender_display|default:"" }}</p>
+                </div>
+            
+                <div class="info-section">
+                    <h4>Contact Information:</h4>
+                    <p><strong>Phone:</strong> {{ user_profile.phone_no|default:"" }}</p>
+                    <p><strong>Address:</strong> {{ user_profile.address|default:"" }}</p>
+                    <p><strong>Email:</strong> {{ user_profile.email|default:"" }}</p>
+                </div>
+            
+                <div class="info-section">
+                    <h4>Guardian:</h4>
+                    <p><strong>Full Name:</strong> {{ user_profile.guardian_name|default:""|title }}</p>
+                    <p><strong>Phone:</strong> {{ user_profile.guardian_phone_no|default:"" }}</p>
+                    <p><strong>Address:</strong> {{ user_profile.guardian_address|default:"" }}</p>
+                    <p><strong>Email:</strong> {{ user_profile.guardian_email|default:"" }}</p>
+                </div>
+            </div>
+            
+            
+            
+
+            <div class="details-card">
+                <h3>Details</h3>
+                <table>
+                    <tr>
+                        <th>Room Number</th>
+                        <th>Room Type</th>
+                        <th>Date of Move In</th>
+                    </tr>
+                    <tr>
+                        <!-- Access the room number from the related Tenant and Room -->
+                        <td>Room No. {{tenant.room_number.room_number }}</td> <!-- Room number from Room model -->
+                        <td>{{tenant.room_number.room_type }}</td>   <!-- Room type from Room model -->
+                        <td><strong>{{tenant.lease_start|date:"F d, Y" }}</strong></td> <!-- Lease start date -->
+                    </tr>
+                </table>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

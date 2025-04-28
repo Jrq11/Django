@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal Sign Up</title>
+  <link rel="stylesheet" href="{% static 'dashboard/css/login_signup.css' %}">
+</head>
+<body>
+  <div class="signup-container">
+    <div class="logo">
+      <img src="{% static 'dashboard/img/logo.png' %}" alt="Admin Logo">
+      <p>ADMIN PORTAL</p>
+    </div>
+    <form class="signup-form" method="POST">
+      {% csrf_token %}
+      
+      <input type="text" name="{{ form.first_name.name }}" placeholder="First Name" required>
+      <input type="text" name="{{ form.last_name.name }}" placeholder="Last Name" required>
+      <input type="text" name="{{ form.username.name }}" placeholder="Username" required>
+      <input type="password" name="{{ form.password.name }}" placeholder="Password" required>
+      
+      <div class="terms">
+          <input type="checkbox" id="terms" required>
+          <label for="terms">
+              I have read and agree to the <a href="#">Terms and Conditions</a>.
+          </label>
+      </div>
+  
+      <button type="submit">SIGN UP</button>
+  </form>
+    <p class="login-link">Already have an account? <a href="{% url 'login' %}">Log in here.</a></p>
+  </div>
+</body>
+</html>

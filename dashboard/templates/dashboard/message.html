@@ -1,0 +1,211 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        .unread-badge {
+            background-color: #e74c3c;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 50%;
+            padding: 4px 7px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }        
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/messages.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+
+    <div class="sidebar">
+        <img src="{% static 'dashboard/img/Logo.png' %}" alt="Admin Logo">
+        <ul>
+            <li><a href="{% url 'landlord:main_dashboard' %}">Home</a></li>
+            <li class="active"><a href="{% url 'landlord:message' %}">Messages</a></li>
+            <li><a href="{% url 'landlord:reports' %}">Reports</a></li>
+            <li><a href="{% url 'landlord:payments' %}">Payments</a></li>
+            <li><a href="{% url 'landlord:rooms' %}">Rooms</a></li>
+            <li><a href="{% url 'landlord:tenants' %}">Tenants</a></li>
+            <li><a href="{% url 'landlord:sales' %}">Sales</a></li>
+        </ul>        
+        <button class="logout-btn" onclick="window.location.href='{% url 'landlord:logout' %}';">
+            LOG OUT
+        </button>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <span class="date">{% now "l, F j, Y" %}</span>           
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-list">
+                <h3>Chats</h3>
+                {% for tenant in tenants %}
+                    <div class="chat-item {% if tenant.id == selected_tenant.id %}active{% endif %}">
+                        <a href="{% url 'landlord:message_with_user' user_id=tenant.id %}">
+                            <div class="chat-avatar">{{ tenant.username|slice:":1" }}</div>
+                            <span>{{ tenant.first_name|title }} {{ tenant.last_name|title }}</span>
+                            {% if tenant.unread_messages_count > 0 %}
+                                <span class="unread-badge">{{ tenant.unread_messages_count }}</span>
+                            {% endif %}
+                        </a>
+                    </div>
+                {% endfor %}
+            
+            </div>
+            
+
+            <div class="chat-messages">
+                <div class="chat-header">
+                    {% if selected_tenant %}
+                        Chatting with {{ selected_tenant.first_name|title }}{{ selected_tenant.last_name|title }}
+                    {% else %}
+                        Select a Tenant to Chat
+                    {% endif %}
+                </div>
+                <div class="chat-body" id="chat-body">
+                    {% for message in messages %}
+                        <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+                            <div class="sender-name">
+                                <strong>
+                                    {% if message.sender == request.user %}You (Landlord){% else %}{{ message.sender.first_name|title }} {{ message.sender.last_name|title }}{% endif %}
+                                </strong>
+                            </div>
+                            <div class="message-text">{{ message.message }}</div>
+                            <div class="message-time">{{ message.timestamp|date:"H:i" }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="chat-footer">
+                    <input id="message-input" type="text" placeholder="Type a message..." required>
+                    <button id="send-button"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+
+            <div class="chat-info">
+                <div class="info-avatar">{{ tenant.username|slice:":1" }}</div>
+                <div class="info-room">
+                    {% if selected_tenant %}
+                        Room No. {{ room_number }}
+                    {% else %}
+                        Select a tenant to view room info
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const userId = "{{ request.user.id }}";  // Current Landlord's ID
+        const receiverId = "{{ selected_tenant.id }}";
+
+        const socket = new WebSocket(`ws://${window.location.host}/ws/chat/${userId}/`);
+
+        socket.onopen = function () {
+            console.log("WebSocket connection established for landlord.");
+        };
+        
+
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const chatBody = document.getElementById("chat-body");
+
+            if (!chatBody) return;
+
+                // Create a new message div
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message");
+
+            if (data.sender === "{{ request.user.username }}") {
+                messageDiv.classList.add("sent");
+            } else {
+                messageDiv.classList.add("received");
+            }
+
+            messageDiv.innerHTML = `
+                <div class="sender-name"><strong>${data.sender}</strong></div>
+                <div class="message-text">${data.message}</div>
+                <div class="message-time">${data.timestamp}</div>
+            `;
+
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        };
+
+        function sendMessage() {
+            const messageInput = document.getElementById("message-input");
+            const message = messageInput.value.trim();
+            const receiverId = "{{ selected_tenant.id }}";  // The tenant the landlord is chatting with
+
+            if (message !== "") {
+                console.log(`Sending message: ${message} to ${receiverId}`);
+                socket.send(JSON.stringify({
+                    "message": message,
+                    "receiver_id": receiverId
+                }));
+                messageInput.value = "";
+            }
+        }
+
+            // Send message on button click
+        document.getElementById("send-button").addEventListener("click", sendMessage);
+
+            // Send message on pressing "Enter"
+        document.getElementById("message-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+    </script>
+    <script>
+        function scrollToBottom() {
+            const chatBody = document.getElementById('chat-body');
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+    
+        // Automatically scroll to the bottom of the chat body when the page loads
+        window.onload = function() {
+            scrollToBottom(); // Scroll to the bottom on page load
+        };
+    
+        // If you're using WebSocket for real-time updates
+        const socket = new WebSocket(`ws://${window.location.host}/ws/chat/{{ request.user.id }}/`);
+    
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const chatBody = document.getElementById('chat-body');
+    
+            // Create a new message div dynamically
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            if (data.sender === '{{ request.user.username }}') {
+                messageDiv.classList.add('sent');
+            } else {
+                messageDiv.classList.add('received');
+            }
+    
+            messageDiv.innerHTML = `
+                <div class="sender-name"><strong>${data.sender}</strong></div>
+                <div class="message-text">${data.message}</div>
+                <div class="message-time">${data.timestamp}</div>
+            `;
+    
+            // Append the new message to the chat body
+            chatBody.appendChild(messageDiv);
+    
+            // Scroll to the bottom after appending the message
+            scrollToBottom();
+        };
+    </script>
+
+    
+
+</body>
+</html>

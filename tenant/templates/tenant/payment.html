@@ -1,0 +1,231 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        /* Sidebar Style */
+.sidebar {
+    width: 250px; /* Full width of sidebar when expanded */
+    background: #dfdede;
+    color: black;
+    height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+    transition: width 0.3s ease;
+    z-index: 100;
+}
+
+
+/* Collapsed Sidebar (only for mobile) */
+.sidebar.collapsed {
+    width: 0; /* Fully collapse the sidebar */
+    padding: 0; /* Remove padding when collapsed */
+}
+
+/* Sidebar content when collapsed (hide everything except the hamburger button) */
+.sidebar.collapsed .logo,
+.sidebar.collapsed nav,
+.sidebar.collapsed .logout-btn {
+    display: none; /* Hide all content except for the hamburger button */
+}
+
+/* Ensure hamburger button stays visible on mobile */
+.sidebar.collapsed .toggle-btn {
+    display: block;
+    position: fixed;
+    top: 25px;
+    left: 30px;
+    z-index: 100;
+}
+
+/* For Mobile: Display the sidebar toggle button */
+@media (max-width: 768px) {
+    .toggle-btn {
+        display: block; /* Show the button only on mobile */
+    }
+
+    /* Sidebar on mobile will shrink/expand */
+    .sidebar.collapsed {
+        width: 0; /* Fully collapse on mobile */
+    }
+
+    .sidebar.collapsed .logo,
+    .sidebar.collapsed nav,
+    .sidebar.collapsed .logout-btn {
+        display: none; /* Hide sidebar content when collapsed */
+    }
+
+    .sidebar + .main-content {
+        margin-left: 0; /* No margin for collapsed sidebar */
+    }
+
+    .main-content {
+        margin-left: 0;
+        transform: scale(0.9);  /* Scale the content down by 10% */
+        transform-origin: top left; /* No space for the sidebar when collapsed */
+    }
+}
+
+/* For Desktop: Sidebar stays expanded */
+@media (min-width: 769px) {
+
+    .body{
+        zoom:0.7;
+    }
+    .sidebar {
+        width: 250px; /* Keep the sidebar fully expanded */
+    }
+
+    .main-content {
+        margin-left: 250px; /* Ensure content is not hidden behind sidebar */
+    }
+
+    /* Hide the hamburger button on desktop */
+    .toggle-btn {
+        display: none;
+    }
+
+    /* Sidebar links show text on desktop */
+    .sidebar nav ul li a {
+        text-indent: 0; /* Show text */
+    }
+}
+        .unread-count {
+            background-color: #e74c3c;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 50%;
+            padding: 4px 7px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.7">
+    <title>Payments</title>
+    <link rel="stylesheet" href="{% static 'tenant/css/payment.css' %}">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <button class="toggle-btn" id="toggleBtn">☰</button>
+        
+            <div class="logo">
+                <img src="{% static 'tenant/img/Logo.png' %}" alt="Logo">
+            </div>
+            <nav>
+                <ul>
+                    <li class="active"><a href="{% url 'tenant:dashboard' %}">HOME</a></li>
+                    <li><a href="{% url 'tenant:profile' %}">PROFILE</a></li>
+                    <li>
+                        <a href="{% url 'tenant:message' %}">
+                            MESSAGE
+                            {% if unread_messages_count > 0 %}
+                                <span class="unread-count">{{ unread_messages_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li><a href="{% url 'tenant:payment' %}">PAYMENTS</a></li>
+                    <li><a href="{% url 'tenant:maintenance' %}">MAINTENANCE</a></li>
+                </ul>
+            </nav>
+            <button class="logout-btn" onclick="window.location.href='{% url 'tenant:logout' %}';">
+                LOG OUT
+            </button>
+        </div>
+        
+        <script>
+            const toggleBtn = document.getElementById('toggleBtn');
+            const sidebar = document.getElementById('sidebar');
+        
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+        </script>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <p class="date">{% now "l, F j, Y" %}</p>
+                <i class="fa-regular fa-bell"></i>
+            </div>
+
+            <div class="cards">
+                <div class="card">
+                    <p class="card-title">Current Balance</p>
+                    <p class="amount">₱00,000.00</p>
+                </div>
+                <div class="card">
+                    <p class="card-title">Due Date</p>
+                    <p class="due-date">
+                        {% if tenant and tenant.end_date %}
+                            {{ tenant.end_date|date:"F d, Y" }}
+                        {% else %}
+                            Not set
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="card payment-status">
+                    <p class="card-title">Payment Status</p>
+                    <p class="status-text">
+                        <span class="paid">PAID</span> /
+                        <span class="unpaid">UNPAID</span> /
+                        <span class="overdue">OVERDUE</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="invoice">
+                <!-- Wrapper for header elements -->
+                <div class="invoice-header">
+                    <h2>Payments</h2>
+                </div>
+                <p class="subtext">Your Reciepts are right here.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ref. No.</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                            <tr>
+                                <td>#{{ payment.reference_number }}</td>
+                                <td>{{ payment.date|date:"d M Y" }}</td>
+                                <td>₱{{ payment.amount }}</td>
+                                <td>
+                                    {% if payment.status == 'Paid' %}
+                                        <span class="badge paid">Paid</span>
+                                    {% elif payment.status == 'paid' %}
+                                        <span class="badge paid">Paid</span>
+                                    {% elif payment.status == 'overdue' %}
+                                        <span class="badge overdue">Overdue</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">No payments found.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            
+        </main>
+    </div>
+
+</body>
+</html>

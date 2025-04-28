@@ -1,0 +1,171 @@
+body {
+    background-color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.signup-container {
+    background: url('../img/bg_img.jpg') no-repeat center;
+    background-size: contain;
+    background-position: center;
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+
+
+.logo img {
+    width: 80px;
+    height: auto;
+    margin-bottom: 8px;
+}
+
+.logo p {
+    font-weight: bold;
+    margin: 8px 0 24px;
+    color: #333;
+}
+
+.signup-form input[type="text"],
+.signup-form input[type="email"],
+.signup-form input[type="password"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.signup-form input[type="email"] {
+    border: 1px solid #4a90e2;
+    background-color: #f8faff;
+}
+
+.signup-form input[type="email"]:focus {
+    border-color: #357ab8;
+    background-color: #eef5ff;
+    outline: none;
+}
+
+.signup-form .terms {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    margin: 12px 0;
+    text-align: left;
+    color: #333;
+}
+
+.signup-form .terms input {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.signup-form button {
+    width: 100%;
+    padding: 12px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.signup-form button:hover {
+    background-color: #357ab8;
+}
+
+.login-link {
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+.login-link a {
+    color: #4a90e2;
+    text-decoration: none;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+/* Style for Terms and Conditions Link */
+.terms a {
+    color: #4a90e2;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.terms a:hover {
+    text-decoration: underline;
+}
+
+/* Modal Styling */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    justify-content: center;
+    align-items: center;
+}
+
+/* Modal Content */
+.modal-content {
+    background: white;
+    padding: 20px;
+    width: 50%;
+    max-width: 600px;
+    border-radius: 10px;
+}
+
+/* Terms Scrollable Content */
+.terms-content {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Modal Footer Buttons */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.cancel-btn {
+    background: transparent;
+    color: #4a90e2;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.agree-btn {
+    background: #4a90e2;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

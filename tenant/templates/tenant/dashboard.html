@@ -1,0 +1,276 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+
+<style>
+/* Sidebar Style */
+.sidebar {
+    width: 250px; /* Full width of sidebar when expanded */
+    background: #dfdede;
+    color: black;
+    height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+    transition: width 0.3s ease;
+    z-index: 100;
+}
+
+
+/* Collapsed Sidebar (only for mobile) */
+.sidebar.collapsed {
+    width: 0; /* Fully collapse the sidebar */
+    padding: 0; /* Remove padding when collapsed */
+}
+
+/* Sidebar content when collapsed (hide everything except the hamburger button) */
+.sidebar.collapsed .logo,
+.sidebar.collapsed nav,
+.sidebar.collapsed .logout-btn {
+    display: none; /* Hide all content except for the hamburger button */
+}
+
+/* Ensure hamburger button stays visible on mobile */
+.sidebar.collapsed .toggle-btn {
+    display: block;
+    position: fixed;
+    top: 25px;
+    left: 30px;
+    z-index: 100;
+}
+
+/* For Mobile: Display the sidebar toggle button */
+@media (max-width: 768px) {
+    .toggle-btn {
+        display: block; /* Show the button only on mobile */
+    }
+
+    /* Sidebar on mobile will shrink/expand */
+    .sidebar.collapsed {
+        width: 0; /* Fully collapse on mobile */
+    }
+
+    .sidebar.collapsed .logo,
+    .sidebar.collapsed nav,
+    .sidebar.collapsed .logout-btn {
+        display: none; /* Hide sidebar content when collapsed */
+    }
+
+    .sidebar + .main-content {
+        margin-left: 0; /* No margin for collapsed sidebar */
+    }
+
+    .main-content {
+        margin-left: 0;
+        transform: scale(0.9);  /* Scale the content down by 10% */
+        transform-origin: top left; /* No space for the sidebar when collapsed */
+    }
+}
+
+/* For Desktop: Sidebar stays expanded */
+@media (min-width: 769px) {
+
+    .body{
+        zoom:0.7;
+    }
+    .sidebar {
+        width: 250px; /* Keep the sidebar fully expanded */
+    }
+
+    .main-content {
+        margin-left: 250px; /* Ensure content is not hidden behind sidebar */
+    }
+
+    /* Hide the hamburger button on desktop */
+    .toggle-btn {
+        display: none;
+    }
+
+    /* Sidebar links show text on desktop */
+    .sidebar nav ul li a {
+        text-indent: 0; /* Show text */
+    }
+}
+
+
+
+
+
+
+
+.pending {
+    background: #e63946;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.in-progress {
+    background:orange;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.completed {
+    background: #50c878;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.unread-count {
+    background-color: #e74c3c;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    padding: 4px 7px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+</style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.7">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{% static 'tenant/css/dashboard.css' %}">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+<body>
+    <div class="sidebar collapsed" id="sidebar">
+        <button class="toggle-btn" id="toggleBtn">☰</button>
+    
+        <div class="logo">
+            <img src="{% static 'tenant/img/Logo.png' %}" alt="Logo">
+        </div>
+        <nav>
+            <ul>
+                <li class="active"><a href="{% url 'tenant:dashboard' %}">HOME</a></li>
+                <li><a href="{% url 'tenant:profile' %}">PROFILE</a></li>
+                <li>
+                    <a href="{% url 'tenant:message' %}">
+                        MESSAGE
+                        {% if unread_messages_count > 0 %}
+                            <span class="unread-count">{{ unread_messages_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li><a href="{% url 'tenant:payment' %}">PAYMENTS</a></li>
+                <li><a href="{% url 'tenant:maintenance' %}">MAINTENANCE</a></li>
+            </ul>
+        </nav>
+        <button class="logout-btn" onclick="window.location.href='{% url 'tenant:logout' %}';">
+            LOG OUT
+        </button>
+    </div>
+    
+    <script>
+        const toggleBtn = document.getElementById('toggleBtn');
+        const sidebar = document.getElementById('sidebar');
+    
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+    </script>
+    
+
+        <main class="main-content">
+            <div class="top-bar">
+                <p class="date">{% now "l, F j, Y" %}</p>
+                <i class="fa-regular fa-bell"></i>
+            </div>
+
+            <div class="cards">
+                <div class="card">
+                    <p class="card-title">Amount</p>
+                    <p class="amount">₱{{ tenant.amount|floatformat:2|default:"0.00"|intcomma }}</p>
+                </div>
+                <div class="card">
+                    <p class="card-title">Current Balance</p>
+                    <p class="amount">₱00,000.00</p>
+                </div>
+                <div class="card">
+                    <p class="card-title">Due Date</p>
+                    <p class="due-date">{{ tenant.end_date|date:"F d, Y" }}</p>
+                </div>
+            </div>
+
+            <div class="rules">
+                <h2>Rules and Regulation</h2>
+                <ul>
+                    <li>Switch off fan when not in use.</li>
+                    <li>Always close the faucet when not in use.</li>
+                    <li>No smoking inside the room. No drinking of liquor.</li>
+                    <li>Curfew is from 11:00 PM only. If you will be out for an important meeting or activity, please ask permission from the management.</li>
+                    <li>Visitors are only allowed until 8:00 PM, and only the first family is allowed to sleep in your selected room. Always ask permission from the management if your relatives will sleep with you in the room.</li>
+                </ul>
+            </div>
+
+            <div class="maintenance">
+                <h2>Maintenance Request</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date Created</th>
+                            <th>Incident Location</th>
+                            <th>Type of Issue</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in requests %}
+                            <tr>
+                                <td>{{ request.requested_at|date:"m-d-Y h:i A" }}</td>
+                                <td>
+                                    {% for location in request.locations.all %}
+                                        {{ location.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for issue in request.issues.all %}
+                                        {{ issue.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{{ request.description }}</td>
+                                <td>
+                                    {% if request.status == 'pending' %}
+                                        <span class="status pending">Pending Request</span>
+                                    {% elif request.status == 'in_progress' %}
+                                        <span class="status in-progress">Request In Progress</span>
+                                    {% elif request.status == 'fixed' %}
+                                        <span class="status completed">Request Completed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5">You don't have any maintenance requests yet.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

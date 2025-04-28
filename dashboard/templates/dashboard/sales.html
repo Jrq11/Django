@@ -1,0 +1,144 @@
+{% load static %}
+{% load currency_filter %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/sales.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <img src="{% static 'dashboard/img/Logo.png' %}" alt="Admin Logo">
+        <ul>
+            <li><a href="{% url 'landlord:main_dashboard' %}">Home</a></li>
+            <li><a href="{% url 'landlord:message' %}">Messages</a></li>
+            <li><a href="{% url 'landlord:reports' %}">Reports</a></li>
+            <li><a href="{% url 'landlord:payments' %}">Payments</a></li>
+            <li><a href="{% url 'landlord:rooms' %}">Rooms</a></li>
+            <li><a href="{% url 'landlord:tenants' %}">Tenants</a></li>
+            <li class="active"><a href="{% url 'landlord:sales' %}">Sales</a></li>
+        </ul> 
+        <button class="logout-btn" onclick="window.location.href='{% url 'landlord:logout' %}';">
+            LOG OUT
+        </button>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <span class="date">{% now 'l, F j, Y' %}</span>   
+        </div>
+
+        <div class="summary-cards">
+            <div class="card">
+                <p>Monthly Revenue</p>
+                <h2>{{ total_revenue|currency }}</h2>
+            </div>
+            <div class="card">
+                <p>Outstanding Balance</p>
+                <h2>P00,000.00</h2>
+            </div>
+            <div class="card">
+                <p>Total Sales (6 Months)</p>
+                <h2>{{ total_sales|currency }}</h2>
+            </div>
+        </div>
+
+        <div class="bottom-section">
+            <div class="issues-chart card">
+                <h4>Most Common Room Types</h4>
+                <canvas id="roomTypeChart"></canvas>
+            </div>
+
+            <div class="issues-chart card">
+                <h4>Payment Status</h4>
+                <canvas id="paymentStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            try {
+                let roomTypesRaw = `{{ room_types|safe }}`;
+                let roomCountsRaw = `{{ room_counts|safe }}`;
+    
+                console.log("Raw Room Types:", roomTypesRaw);
+                console.log("Raw Room Counts:", roomCountsRaw);
+    
+                if (!roomTypesRaw || !roomCountsRaw || roomTypesRaw === "[]" || roomCountsRaw === "[]") {
+                    console.error("No data received from Django.");
+                    return;
+                }
+    
+                let roomTypes = JSON.parse(roomTypesRaw.replace(/&#x27;/g, '"').replace(/&quot;/g, '"'));
+                let roomCounts = JSON.parse(roomCountsRaw.replace(/&#x27;/g, '"').replace(/&quot;/g, '"'));
+    
+                console.log("Parsed Room Types:", roomTypes);
+                console.log("Parsed Room Counts:", roomCounts);
+    
+                let roomTypeCanvas = document.getElementById('roomTypeChart');
+                if (!roomTypeCanvas) {
+                    console.error("Canvas element with ID 'roomTypeChart' not found!");
+                    return;
+                }
+    
+                if (window.roomTypeChartInstance) {
+                    window.roomTypeChartInstance.destroy();
+                }
+    
+                let ctx = roomTypeCanvas.getContext('2d');
+                window.roomTypeChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: roomTypes,
+                        datasets: [{
+                            data: roomCounts,
+                            backgroundColor: ['#28a745', '#ffc107', '#007bff']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+    
+                console.log("Chart successfully rendered!");
+    
+            } catch (error) {
+                console.error("Chart Rendering Error:", error);
+            }
+        });
+    </script>
+    
+    <script>
+        const paymentStatusCtx = document.getElementById('paymentStatusChart').getContext('2d');
+        new Chart(paymentStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Paid', 'Overdue'],
+                datasets: [{
+                    data: [{{ paid_count|default:0 }}, {{ overdue_count|default:0 }}],
+                    backgroundColor: ['#28a745', '#dc3545'],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    </script>
+    
+</body>
+</html>

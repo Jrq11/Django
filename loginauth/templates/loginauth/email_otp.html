@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email OTP Verification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'login/css/email_otp.css' %}">
+</head>
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-container">
+            <div class="logo">
+                <img src="{% static 'login/img/Logo.png' %}" alt="AC Logo">
+            </div>
+            <h2>AUTHENTICATION</h2>
+            <p class="auth-subtext">This step shows that it's really you trying to sign in.</p>
+
+            <p class="input-instruction">
+                Enter the authentication code sent to <strong id="maskedEmail">{{ user.email|default:"your email" }}</strong>
+            </p>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="otp-container">
+                    <input type="text" maxlength="1" name="otp" class="otp-input" id="otp1" required>
+                    <input type="text" maxlength="1" name="otp" class="otp-input" id="otp2" required>
+                    <input type="text" maxlength="1" name="otp" class="otp-input" id="otp3" required>
+                    <input type="text" maxlength="1" name="otp" class="otp-input" id="otp4" required>
+                    <input type="text" maxlength="1" name="otp" class="otp-input" id="otp5" required>
+                    <input type="text" maxlength="1" name="otp" class="otp-input" id="otp6" required>
+                    <input type="hidden" name="otp_combined" id="otp_combined">
+                </div>
+
+                <p class="resend-text">
+                    Didn't receive the email? <a href="{% url 'resend_otp' %}">Resend</a>
+                </p>
+            {% if messages %}
+                {% for message in messages %}
+                  <p class="success-message">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+
+                <button class="verify-btn" type="submit">VERIFY</button>
+            </form>
+
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Script to handle email masking
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function maskEmail(email) {
+            if (!email) return "your email";
+            let parts = email.split("@");
+            if (parts.length !== 2) return email;
+            let maskedPart = parts[0].substring(0, 2) + "****";
+            return maskedPart + "@" + parts[1];
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            let email = "{{ user.email }}";  // Use the logged-in user's email
+            document.getElementById("maskedEmail").innerHTML = maskEmail(email);
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const inputs = document.querySelectorAll(".otp-input");
+    
+            inputs.forEach((input, index) => {
+                input.addEventListener("input", () => {
+                    if (input.value.length === 1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+    
+                input.addEventListener("keydown", (e) => {
+                    if (e.key === "Backspace" && !input.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+            });
+        });
+        document.querySelector("form").addEventListener("submit", function () {
+            let combined = "";
+            document.querySelectorAll(".otp-input").forEach(input => {
+                combined += input.value;
+            });
+            document.getElementById("otp_combined").value = combined;
+        });
+    </script>
+</body>
+</html>

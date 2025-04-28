@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tenant Portal Signup</title>
+  <link rel="stylesheet" href="{% static 'login/css/signup.css' %}">
+</head>
+<body>
+  <div class="signup-container">
+    <div class="logo">
+      <img src="{% static 'login/img/Logo.png' %}" alt="Admin Logo">
+      <p>Tenant Portal Signup</p>
+    </div>
+    <form class="signup-form" method="POST">
+      {% csrf_token %}
+      
+      <input type="text" name="first_name" placeholder="First Name" required value="">
+      {% if form.first_name.errors %}
+            <div class="error-message">
+              {% for error in form.first_name.errors %}
+                  <p>Does not match the first name</p>
+              {% endfor %}
+          </div>
+      {% endif %}
+      
+      <input type="text" name="last_name" placeholder="Last Name" required value="">
+      {% if form.last_name.errors %}
+            <div class="error-message">
+              {% for error in form.last_name.errors %}
+                  <p>Does not match the last name</p>
+              {% endfor %}
+          </div>
+      {% endif %}
+      
+      <input type="text" name="username" placeholder="Username" required value="">
+      {% if form.username.errors %}
+            <div class="error-message">
+              {% for error in form.username.errors %}
+                  <p>{{ error }}</p>
+              {% endfor %}
+          </div>
+      {% endif %}
+      
+      <input type="email" name="email" placeholder="Email" required value="">
+      {% if form.email.errors %}
+            <div class="error-message">
+              {% for error in form.email.errors %}
+                  <p>{{ error }}</p>
+              {% endfor %}
+          </div>
+      {% endif %}
+      
+      <input type="password" name="password1" placeholder="Password" required>
+      {% if form.password1.errors %}
+            <div class="error-message">
+              {% for error in form.password1.errors %}
+                  <p>{{ error }}</p>
+              {% endfor %}
+          </div>
+      {% endif %}
+      
+      <input type="password" name="password2" placeholder="Confirm Password" required>
+      {% if form.password2.errors %}
+          <div class="error">
+              {% for error in form.password2.errors %}
+                  <p>{{ error }}</p>
+              {% endfor %}
+          </div>
+      {% endif %}
+      
+      <div class="terms">
+          <input type="checkbox" id="termsCheckbox" name="terms_and_conditions" {% if form.terms_and_conditions.value %}checked{% endif %} required>
+          <label for="termsCheckbox">I agree to the <a href="#" id="openTerms">Terms and Conditions</a></label>
+          {% if form.terms_and_conditions.errors %}
+              <div class="error">
+                  {% for error in form.terms_and_conditions.errors %}
+                      <p>{{ error }}</p>
+                  {% endfor %}
+              </div>
+          {% endif %}
+      </div>
+  
+      <button type="submit">SIGN UP</button>
+  </form>
+    <p class="login-link">Already have an account? <a href="{% url 'login' %}">Log in here.</a></p>
+  </div>
+
+<!-- Terms and Conditions Modal -->
+<div class="modal" id="termsModal">
+    <div class="modal-content">
+      <h3>Terms and Conditions</h3>
+      <div class="terms-content">
+        <b>Your Agreement</b>
+        <p><b>Effective Date:</b> [Date]</p>
+        <p><b>Last Updated:</b> [Date]</p>
+        <p>Welcome to APO COMPOUND ("the Website"). These Terms and Conditions ("Terms") govern your use of our room rental management platform, including its features for secure payment processing, maintenance request reporting, and tenant profile management. By accessing or using APO COMPOUND, you agree to be bound by these Terms.</p>
+  
+        <b>1. Definitions</b>
+        <p>1.1 "System" refers to APO COMPOUND, a platform for managing room rentals, payments, maintenance requests, and tenant profiles.</p>
+        <p>1.2 "User" refers to any person who registers and accesses the System, including landlords, property managers, and tenants.</p>
+        <p>1.3 "Landlord" refers to a property owner or designated manager who lists and manages rental properties using the System.</p>
+        <p>1.4 "Tenant" refers to an individual renting a property through the System.</p>
+        <p>1.5 "Payment Processor" refers to third-party financial service providers integrated with the System for secure transactions.</p>
+  
+        <b>2. User Registration and Accounts</b>
+        <p>2.1 <b>Account Creation</b> - Users, including Tenants and Landlords, must provide accurate and complete information during registration.</p>
+        <p>2.2 <b>Account Security</b> - Users are responsible for maintaining the confidentiality of their login credentials. The System is not liable for unauthorized account access.</p>
+        <p>2.3 <b>Profile Management</b> - Users must keep their profiles up to date, including contact details, payment preferences, and rental agreements.</p>
+  
+        <b>3. Property Listings and Tenant Management</b>
+        <p>3.1 <b>Property Details</b> - Landlords must provide truthful, legally binding property descriptions, rental terms, and pricing.</p>
+        <p>3.2 <b>Tenant Profiles</b> - The System allows landlords to securely manage tenant profiles, rental agreements, and lease terms.</p>
+        <p>3.3 <b>Tenant Verification</b> - The System may provide optional tenant background checks, but landlords are responsible for screening and approval.</p>
+  
+        <b>4. Payment Processing and Security</b>
+        <p>4.1 <b>Payment Gateway</b> - The System includes secure third-party payment processors for rent collection and deposit management.</p>
+        <p>4.2 <b>Refunds and Disputes</b> - Any payment issues must be settled between the landlord and tenant. The System is not responsible for granting refunds.</p>
+  
+        <b>5. Reporting and Analytics</b>
+        <p>5.1 <b>Financial Reports</b> - The System generates reports on rent collection, outstanding balances, and financial summaries for landlords.</p>
+        <p>5.2 <b>Tenant Reports</b> - The System provides information on tenant payment history and lease status.</p>
+        <p>5.3 <b>Data Accuracy</b> - Reports are generated based on user input. The System is not responsible for inaccuracies caused by incorrect data entry.</p>
+  
+        <b>6. User Responsibilities and Prohibited Conduct</b>
+        <p>6.1 <b>Compliance</b> - Users must follow all applicable rental laws and banking requirements.</p>
+        <p>6.2 <b>Prohibited Activities</b> - Users must not:</p>
+        <ul>
+          <li>Use the System for fraudulent transactions.</li>
+          <li>Share or distribute another user's personal information without their consent.</li>
+          <li>Compromise system security.</li>
+        </ul>
+  
+        <b>7. Privacy and Data Protection</b>
+        <p>7.1 <b>Data Collection</b> - The System collects and handles personal information in compliance with our Privacy Policy.</p>
+        <p>7.2 <b>Security Measures</b> - The System uses encryption and secure protocols to protect user data. However, no system is entirely secure, and users acknowledge the inherent risks of online transactions.</p>
+  
+        <b>8. Termination and Suspension</b>
+        <p>8.1 <b>Breach of Terms</b> - The System reserves the right to suspend or terminate accounts violating the Terms.</p>
+        <p>8.2 <b>Discontinuation of Service</b> - The System may modify or discontinue services with reasonable notice to users.</p>
+  
+        <b>9. Limitation of Liability</b>
+        <p>9.1 <b>No Guarantee</b> - The System does not guarantee continuous service, error-free performance, or complete security.</p>
+        <p>9.2 <b>Indirect Damages</b> - The System is not responsible for indirect or consequential damages arising from platform use.</p>
+  
+        <b>10. Changes to Terms</b>
+        <p>10.1 <b>Modification Rights</b> - The System reserves the right to modify these Terms at any time. Users will be notified of significant changes.</p>
+        <p>10.2 <b>Continued Use</b> - Continued use of the System after modifications implies acceptance of the updated Terms.</p>
+  
+        <p>If you have any questions or concerns, please contact us at <b>[Support Email]</b>.</p>
+      </div>
+  
+      <div class="modal-footer">
+        <div class="terms-checkbox">
+            <input type="checkbox" id="acceptTerms">
+            <label for="acceptTerms">I confirm that I have read and accept the terms and conditions and Policy</label>
+        </div>
+        
+        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        <button class="agree-btn" id="agreeBtn" disabled>Agree</button>
+      </div>
+    </div>
+  </div>
+  
+
+    <script>
+      document.getElementById("openTerms").addEventListener("click", function(event) {
+          event.preventDefault();
+          document.getElementById("termsModal").style.display = "flex";
+      });
+
+      function closeModal() {
+          document.getElementById("termsModal").style.display = "none";
+      }
+
+      document.getElementById("acceptTerms").addEventListener("change", function() {
+          document.getElementById("agreeBtn").disabled = !this.checked;
+      });
+
+      document.getElementById("agreeBtn").addEventListener("click", function() {
+          document.getElementById("termsCheckbox").checked = true;
+          closeModal();
+      });
+    </script>
+</body>
+</html>

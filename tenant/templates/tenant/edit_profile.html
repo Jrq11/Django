@@ -1,0 +1,239 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Profile</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #f2f2f2;
+      display: flex;
+    }
+    .sidebar {
+      width: 250px;
+      background: #dfdede;
+      color: black;
+      height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+  
+    .sidebar img {
+      width: 80px;
+      margin-bottom: 20px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+  
+    .sidebar ul li {
+      padding: 15px;
+      transition: background 0.3s;
+    }
+  
+    .sidebar ul li a {
+      text-decoration: none;
+      color: black;
+    }
+  
+    .sidebar ul li:hover,
+    .sidebar ul .active {
+      background: #eeeeee;
+      color: black;
+      border-radius: 10px;
+    }
+  
+    .logout-btn {
+      margin-top: auto;
+      padding: 10px;
+      background: #889eff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+
+    .main {
+      flex-grow: 1;
+      padding: 40px;
+    }
+    .top-bar {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+    .edit-box {
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      display: flex;
+      gap: 40px;
+      position: relative;
+    }
+    .edit-box h3 {
+      margin-bottom: 20px;
+    }
+    .section {
+      flex: 1;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+    }
+    .profile-pic {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      width: 60px;
+      height: 60px;
+      background-color: #eee;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 30px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .form-actions {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .form-actions button {
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .form-actions .cancel {
+      background-color: white;
+      border: 1px solid #ccc;
+      color: #333;
+    }
+    .form-actions .save {
+      background-color: #4d94ff;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo">
+        <img src="{% static 'tenant/img/Logo.png' %}" alt="Logo">
+    </div>
+    <nav>
+        <ul>
+            <li><a href="{% url 'tenant:dashboard' %}">HOME</a></li>
+            <li class="active"><a href="{% url 'tenant:profile' %}">PROFILE</a></li>
+            <li><a href="{% url 'tenant:message' %}">MESSAGE</a></li>
+            <li><a href="{% url 'tenant:payment' %}">PAYMENTS</a></li>
+            <li><a href="{% url 'tenant:maintenance' %}">MAINTENANCE</a></li>
+        </ul>
+    </nav>
+    <button class="logout-btn" onclick="window.location.href='{% url 'tenant:logout' %}';">
+        LOG OUT
+    </button>
+  </aside>
+
+  <div class="main">
+    <div class="top-bar">{% now "l, F j, Y" %}</div>
+    <div class="edit-box">
+      <div class="section">
+        <h3>Edit Profile</h3>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="first_name">First Name:</label>
+            <input type="text" name="first_name" value="{{ user_profile.first_name|default_if_none:''|title }}">
+          </div>
+          <div class="form-group">
+            <label for="middle_name">Middle Name:</label>
+            <input type="text" name="middle_name" value="{{ user_profile.middle_name|default_if_none:''|title }}">
+          </div>
+          <div class="form-group">
+            <label for="last_name">Last Name:</label>
+            <input type="text" name="last_name" value="{{ user_profile.last_name|default_if_none:''|title }}">
+          </div>
+          <div class="form-group">
+            <label for="birthday">Birthday:</label>
+            <input type="date" name="birthday" value="{{ user_profile.birthday|date:'Y-m-d'|default_if_none:'' }}">
+          </div>
+          <div class="form-group">
+            <label for="gender">Gender:</label>
+            <input type="tel" name="phone_no" value="{{ user_profile.phone_no|default_if_none:'' }}">
+          </div>
+      </div>
+
+      <div class="section">
+        <h3>&nbsp;</h3>
+        <div class="form-group">
+          <label for="phone_no">Phone:</label>
+          <input type="text" name="address" value="{{ user_profile.address|default_if_none:'' }}">
+        </div>
+        <div class="form-group">
+          <label for="address">Address:</label>
+          <input type="text" name="address" id="address" value="{{ user_profile.address|default_if_none:'' }}">
+        </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" name="email" id="email" value="{{ user_profile.email|default_if_none:'' }}">
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Guardian:</h3>
+        <div class="form-group">
+          <label for="guardian_name">Full Name:</label>
+          <input type="text" name="guardian_name" id="guardian_name" value="{{ user_profile.guardian_name|default_if_none:''|title }}">
+        </div>
+        <div class="form-group">
+          <label for="guardian_phone_no">Phone:</label>
+          <input type="tel" name="guardian_phone_no" id="guardian_phone_no" value="{{ user_profile.guardian_phone_no|default_if_none:'' }}">
+        </div>
+        <div class="form-group">
+          <label for="guardian_address">Address:</label>
+          <input type="text" name="guardian_address" id="guardian_address" value="{{ user_profile.guardian_address|default_if_none:'' }}">
+        </div>
+        <div class="form-group">
+          <label for="guardian_email">Email:</label>
+          <input type="email" name="guardian_email" id="guardian_email" value="{{ user_profile.guardian_email|default_if_none:'' }}">
+        </div>
+      </div>
+
+      <div class="profile-pic">👤</div>
+    </div>
+    <div class="form-actions">
+      <button class="cancel" onclick="window.location.href='{% url 'tenant:profile' %}';">Cancel</button>
+      <button type="submit" class="save">Save</button>
+    </div>
+    </form>
+  </div>
+</body>
+</html>

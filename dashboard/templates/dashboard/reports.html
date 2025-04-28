@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<style>
+    .status.pending {
+        color: red;
+        font-weight: bold;
+    }
+  
+    .status.in-progress {
+        color: orange;
+        font-weight: bold;
+    }
+  
+    .status.fixed {
+        color: green;
+        font-weight: bold;
+    }
+    .unread-badge {
+        background-color: #e74c3c;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 50%;
+        padding: 4px 7px;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+</style>
+  
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/reports.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<body>
+    <div class="sidebar">
+        <img src="{% static 'dashboard/img/Logo.png' %}" alt="Admin Logo">
+        <ul>
+            <li><a href="{% url 'landlord:main_dashboard' %}">Home</a></li>
+            <li>
+                <a href="{% url 'landlord:message' %}">
+                    Messages
+                    {% if unread_messages_count > 0 %}
+                        <span class="unread-badge">{{ unread_messages_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li class="active"><a href="{% url 'landlord:reports' %}">Reports</a></li>
+            <li><a href="{% url 'landlord:payments' %}">Payments</a></li>
+            <li><a href="{% url 'landlord:rooms' %}">Rooms</a></li>
+            <li><a href="{% url 'landlord:tenants' %}">Tenants</a></li>
+            <li><a href="{% url 'landlord:sales' %}">Sales</a></li>
+        </ul>     
+        <button class="logout-btn" onclick="window.location.href='{% url 'landlord:logout' %}';">
+            LOG OUT
+        </button>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <span class="date">{% now "l, F j, Y" %}</span>  
+        </div>
+
+        <div class="maintenance-status card">
+            <h4>Maintenance Status</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Room No.</th>
+                        <th>Full Name</th>
+                        <th>Issue</th>
+                        <th>Date Reported</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr>
+                        <td>RM{{ report.room_number }}</td>
+                        <td>{{ report.full_name|title }}</td>
+                        <td>{{ report.issue }}</td>
+                        <td>{{ report.date_reported|date:"M d, Y" }}</td>
+                        <td class="status {% if report.status == 'Pending' %}pending
+                            {% elif report.status == 'In Progress' %}in-progress
+                            {% elif report.status == 'Fixed' %}fixed
+                            {% endif %}">
+                            {{ report.status }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">No maintenance reports found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+        </div>
+
+        <div class="bottom-section">
+            <div class="issues-chart card">
+                <h4>Most Reported Room Issues</h4>
+                <canvas id="issuesChart"></canvas>
+            </div>
+            <button class="edit-status-btn" onclick="window.location.href='{% url 'landlord:edit_report' %}'">EDIT STATUS</button>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('issuesChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Faucet', 'Ceiling', 'Window', 'Broken Door'],
+                datasets: [{
+                    data: [789, 456, 234, 20],
+                    backgroundColor: ['#28a745', '#ffc107', '#dc3545', '#17a2b8']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

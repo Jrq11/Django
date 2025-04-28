@@ -1,0 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    display: flex;
+    background: #F8F8F8;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: #dfdede;
+    color: black;
+    height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar img {
+    width: 80px;
+    margin-bottom: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 15px;
+    transition: background 0.3s;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: black;
+}
+
+.sidebar ul li:hover,
+.sidebar ul .active {
+    background: #eeeeee;
+    color: black;
+    border-radius: 10px;
+}
+
+.logout-btn {
+    margin-top: auto;
+    padding: 10px;
+    background: #889eff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 20px;
+}
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.search-bar {
+    width: 200px;  /* Reduce the width */
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    outline: none;
+}
+
+.date {
+    font-size: 16px;
+    font-weight: 500;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.top-bar i {
+    font-size: 20px;
+    cursor: pointer;
+    color: #333;
+}
+
+
+.top-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+/* Cards */
+.cards {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    flex: 1;
+    text-align: left;
+}
+
+.card-title {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.amount, .due-date {
+    font-size: 22px;
+    font-weight: bold;
+    color: black;
+}
+/* Invoice Container */
+.invoice {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    position: relative;
+}
+
+/* Flexbox to position title & button */
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* Invoice Title */
+.invoice h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Invoice Subtext */
+.invoice .subtext {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 10px;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: none; /* Remove header background */
+    color: black;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Badge */
+.badge {
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.badge.paid { background: green; color: white; }
+.badge.overdue {background: red; color: white;}
+
+/* Download Button Styling */
+.download-btn {
+    padding: 8px 12px;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.download-btn:hover {
+    background: #3b7cc4;
+}
