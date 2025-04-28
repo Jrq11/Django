@@ -1,11 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Edit Profile</title>
-  <style>
+<style>
     * {
       box-sizing: border-box;
       font-family: 'Segoe UI', sans-serif;
@@ -141,10 +137,108 @@
       background-color: #4d94ff;
       color: white;
     }
-  </style>
+       /* Sidebar Style */
+.sidebar {
+  width: 250px; /* Full width of sidebar when expanded */
+  background: #dfdede;
+  color: black;
+  height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  transition: width 0.3s ease;
+  z-index: 100;
+}
+
+
+/* Collapsed Sidebar (only for mobile) */
+.sidebar.collapsed {
+  width: 0; /* Fully collapse the sidebar */
+  padding: 0; /* Remove padding when collapsed */
+}
+
+/* Sidebar content when collapsed (hide everything except the hamburger button) */
+.sidebar.collapsed .logo,
+.sidebar.collapsed nav,
+.sidebar.collapsed .logout-btn {
+  display: none; /* Hide all content except for the hamburger button */
+}
+
+/* Ensure hamburger button stays visible on mobile */
+.sidebar.collapsed .toggle-btn {
+  display: block;
+  position: fixed;
+  top: 25px;
+  left: 30px;
+  z-index: 100;
+}
+
+/* For Mobile: Display the sidebar toggle button */
+@media (max-width: 768px) {
+  .toggle-btn {
+      display: block; /* Show the button only on mobile */
+  }
+
+  /* Sidebar on mobile will shrink/expand */
+  .sidebar.collapsed {
+      width: 0; /* Fully collapse on mobile */
+  }
+
+  .sidebar.collapsed .logo,
+  .sidebar.collapsed nav,
+  .sidebar.collapsed .logout-btn {
+      display: none; /* Hide sidebar content when collapsed */
+  }
+
+  .sidebar + .main-content {
+      margin-left: 0; /* No margin for collapsed sidebar */
+  }
+
+  .main-content {
+      margin-left: 0;
+      transform: scale(0.9);  /* Scale the content down by 10% */
+      transform-origin: top left; /* No space for the sidebar when collapsed */
+  }
+}
+
+/* For Desktop: Sidebar stays expanded */
+@media (min-width: 769px) {
+
+  .body{
+      zoom:0.7;
+  }
+  .sidebar {
+      width: 250px; /* Keep the sidebar fully expanded */
+  }
+
+  .main-content {
+      margin-left: 250px; /* Ensure content is not hidden behind sidebar */
+  }
+
+  /* Hide the hamburger button on desktop */
+  .toggle-btn {
+      display: none;
+  }
+
+  /* Sidebar links show text on desktop */
+  .sidebar nav ul li a {
+      text-indent: 0; /* Show text */
+  }
+}
+</style>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.5" />
+  <title>Edit Profile</title>
 </head>
 <body>
-  <aside class="sidebar">
+  <div class="sidebar collapsed" id="sidebar">
+    <button class="toggle-btn" id="toggleBtn">☰</button>
+
     <div class="logo">
         <img src="{% static 'tenant/img/Logo.png' %}" alt="Logo">
     </div>
@@ -152,7 +246,14 @@
         <ul>
             <li><a href="{% url 'tenant:dashboard' %}">HOME</a></li>
             <li class="active"><a href="{% url 'tenant:profile' %}">PROFILE</a></li>
-            <li><a href="{% url 'tenant:message' %}">MESSAGE</a></li>
+            <li>
+                <a href="{% url 'tenant:message' %}">
+                    MESSAGE
+                    {% if unread_messages_count > 0 %}
+                        <span class="unread-count">{{ unread_messages_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
             <li><a href="{% url 'tenant:payment' %}">PAYMENTS</a></li>
             <li><a href="{% url 'tenant:maintenance' %}">MAINTENANCE</a></li>
         </ul>
@@ -160,7 +261,16 @@
     <button class="logout-btn" onclick="window.location.href='{% url 'tenant:logout' %}';">
         LOG OUT
     </button>
-  </aside>
+</div>
+
+<script>
+    const toggleBtn = document.getElementById('toggleBtn');
+    const sidebar = document.getElementById('sidebar');
+
+    toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+    });
+</script>
 
   <div class="main">
     <div class="top-bar">{% now "l, F j, Y" %}</div>

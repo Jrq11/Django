@@ -105,7 +105,7 @@
 <body>
 
     <div class="container">
-        <div class="sidebar" id="sidebar">
+        <div class="sidebar collapsed" id="sidebar">
             <button class="toggle-btn" id="toggleBtn">☰</button>
         
             <div class="logo">
@@ -113,9 +113,9 @@
             </div>
             <nav>
                 <ul>
-                    <li class="active"><a href="{% url 'tenant:dashboard' %}">HOME</a></li>
+                    <li><a href="{% url 'tenant:dashboard' %}">HOME</a></li>
                     <li><a href="{% url 'tenant:profile' %}">PROFILE</a></li>
-                    <li>
+                    <li class="active">
                         <a href="{% url 'tenant:message' %}">
                             MESSAGE
                             {% if unread_messages_count > 0 %}

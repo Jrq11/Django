@@ -130,7 +130,7 @@
 
     <div class="container">
         <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
+        <div class="sidebar collapsed" id="sidebar">
             <button class="toggle-btn" id="toggleBtn">☰</button>
         
             <div class="logo">
@@ -138,7 +138,7 @@
             </div>
             <nav>
                 <ul>
-                    <li class="active"><a href="{% url 'tenant:dashboard' %}">HOME</a></li>
+                    <li><a href="{% url 'tenant:dashboard' %}">HOME</a></li>
                     <li><a href="{% url 'tenant:profile' %}">PROFILE</a></li>
                     <li>
                         <a href="{% url 'tenant:message' %}">
@@ -149,7 +149,7 @@
                         </a>
                     </li>
                     <li><a href="{% url 'tenant:payment' %}">PAYMENTS</a></li>
-                    <li><a href="{% url 'tenant:maintenance' %}">MAINTENANCE</a></li>
+                    <li class="active"><a href="{% url 'tenant:maintenance' %}">MAINTENANCE</a></li>
                 </ul>
             </nav>
             <button class="logout-btn" onclick="window.location.href='{% url 'tenant:logout' %}';">
