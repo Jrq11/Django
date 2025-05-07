@@ -173,7 +173,7 @@
   display: block;
   position: fixed;
   top: 25px;
-  left: 30px;
+  left: -50px;
   z-index: 100;
 }
 
@@ -228,6 +228,31 @@
   .sidebar nav ul li a {
       text-indent: 0; /* Show text */
   }
+}
+
+.nav-bar {
+  display: flex;
+  flex-direction: column; /* Or 'row' if you want them side-by-side */
+  gap: 10px;
+}
+
+.nav-button {
+  display: block;
+  padding: 15px;
+  background: #dfdede;
+  color: black;
+  text-decoration: none;
+  border-radius: 5px;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.nav-button:hover {
+  background-color:rgb(182, 182, 182);
+}
+
+.nav-button.active {
+  background-color:rgb(148, 149, 151);
 }
 </style>
 <head>

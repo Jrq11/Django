@@ -2,10 +2,37 @@
 
 <!DOCTYPE html>
 <html lang="en">
+<style>
+  form {
+    display: flex;
+    flex-direction: column;
+    width: 300px; /* optional: set a fixed width */
+    margin: 0 auto; /* optional: center the form */
+  }
+
+  input {
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+</style>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=0.8">
-  <title>Tenant Portal Login</title>
+  <title>AC Portal Login</title>
   <link rel="stylesheet" href="{% static 'login/css/login.css' %}">
 </head>
 <body>

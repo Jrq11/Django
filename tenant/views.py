@@ -101,7 +101,7 @@ def payment(request):
 
 @login_required
 def maintenance(request):
-    maintenance_requests = MaintenanceRequest.objects.filter(tenant=request.user).order_by
+    maintenance_requests = MaintenanceRequest.objects.filter(tenant=request.user).order_by('-requested_at')
 
     unread_messages_count = ChatMessage.objects.filter(
         receiver=request.user, is_read=False

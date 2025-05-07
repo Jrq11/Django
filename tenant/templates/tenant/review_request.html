@@ -94,6 +94,30 @@
         text-indent: 0; /* Show text */
     }
 }
+.nav-bar {
+    display: flex;
+    flex-direction: column; /* Or 'row' if you want them side-by-side */
+    gap: 10px;
+}
+
+.nav-button {
+    display: block;
+    padding: 15px;
+    background: #dfdede;
+    color: black;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.nav-button:hover {
+    background-color:rgb(182, 182, 182);
+}
+
+.nav-button.active {
+    background-color:rgb(148, 149, 151);
+}
 </style>
 <head>
     <meta charset="UTF-8">
@@ -106,27 +130,23 @@
 <body>
 
     <div class="container">
-        <div class="sidebar collapsed" id="sidebar">
+        <div class="sidebar" id="sidebar">
             <button class="toggle-btn" id="toggleBtn">☰</button>
         
             <div class="logo">
                 <img src="{% static 'tenant/img/Logo.png' %}" alt="Logo">
             </div>
-            <nav>
-                <ul>
-                    <li><a href="{% url 'tenant:dashboard' %}">HOME</a></li>
-                    <li><a href="{% url 'tenant:profile' %}">PROFILE</a></li>
-                    <li>
-                        <a href="{% url 'tenant:message' %}">
-                            MESSAGE
-                            {% if unread_messages_count > 0 %}
-                                <span class="unread-count">{{ unread_messages_count }}</span>
-                            {% endif %}
-                        </a>
-                    </li>
-                    <li><a href="{% url 'tenant:payment' %}">PAYMENTS</a></li>
-                    <li class="active"><a href="{% url 'tenant:maintenance' %}">MAINTENANCE</a></li>
-                </ul>
+            <nav class="nav-bar">
+                <a class="nav-button" href="{% url 'tenant:dashboard' %}">HOME</a>
+                <a class="nav-button" href="{% url 'tenant:profile' %}">PROFILE</a>
+                <a class="nav-button" href="{% url 'tenant:message' %}">
+                    MESSAGE
+                    {% if unread_messages_count > 0 %}
+                        <span class="unread-count">{{ unread_messages_count }}</span>
+                    {% endif %}
+                </a>
+                <a class="nav-button" href="{% url 'tenant:payment' %}">PAYMENTS</a>
+                <a class="nav-button active" href="{% url 'tenant:maintenance' %}">MAINTENANCE</a>
             </nav>
             <button class="logout-btn" onclick="window.location.href='{% url 'tenant:logout' %}';">
                 LOG OUT

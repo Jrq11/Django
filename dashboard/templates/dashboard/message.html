@@ -12,6 +12,32 @@
             padding: 4px 7px;
             margin-left: 8px;
             vertical-align: middle;
+        }
+        .nav-bar {
+            display: flex;
+            flex-direction: column; /* Change to row if horizontal */
+            gap: 10px;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .nav-button {
+            display: block;
+            padding: 15px 20px;
+            background: #dfdede;
+            color: black;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-button:hover {
+            background-color:rgb(182, 182, 182);
+        }
+        
+        .nav-button.active {
+            background-color:rgb(148, 149, 151);
         }        
     </style>
     <meta charset="UTF-8">
@@ -24,15 +50,15 @@
 
     <div class="sidebar">
         <img src="{% static 'dashboard/img/Logo.png' %}" alt="Admin Logo">
-        <ul>
-            <li><a href="{% url 'landlord:main_dashboard' %}">Home</a></li>
-            <li class="active"><a href="{% url 'landlord:message' %}">Messages</a></li>
-            <li><a href="{% url 'landlord:reports' %}">Reports</a></li>
-            <li><a href="{% url 'landlord:payments' %}">Payments</a></li>
-            <li><a href="{% url 'landlord:rooms' %}">Rooms</a></li>
-            <li><a href="{% url 'landlord:tenants' %}">Tenants</a></li>
-            <li><a href="{% url 'landlord:sales' %}">Sales</a></li>
-        </ul>        
+        <nav class="nav-bar">
+            <a class="nav-button" href="{% url 'landlord:main_dashboard' %}">Home</a>
+            <a class="nav-button active" href="{% url 'landlord:message' %}">Messages</a>
+            <a class="nav-button" href="{% url 'landlord:reports' %}">Reports</a>
+            <a class="nav-button" href="{% url 'landlord:payments' %}">Payments</a>
+            <a class="nav-button" href="{% url 'landlord:rooms' %}">Rooms</a>
+            <a class="nav-button" href="{% url 'landlord:tenants' %}">Tenants</a>
+            <a class="nav-button" href="{% url 'landlord:sales' %}">Sales</a>
+        </nav>       
         <button class="logout-btn" onclick="window.location.href='{% url 'landlord:logout' %}';">
             LOG OUT
         </button>

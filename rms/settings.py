@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
-
+import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-c3+tz%97ac*8eya&-=c5!dzdt!i#$&%0d%bps-+gu!wm9h66(#')
 DEBUG = False
 
-ALLOWED_HOSTS = ['192.168.1.7', '127.0.0.1', '192.168.1.5']
+ALLOWED_HOSTS = ['192.168.1.7', '127.0.0.1', '192.168.1.5', '.onrender.com']
 
 
 # Application definition
@@ -164,8 +164,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'janredquierra1@gmail.com'
-EMAIL_HOST_PASSWORD = 'qjgiibvwwozaaaub'
+EMAIL_HOST_USER = 'apocompound@gmail.com'
+EMAIL_HOST_PASSWORD = 'xhlvinvtfguslmzk'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 OTP_EMAIL_SECRET_KEY = 'your-secret-key'

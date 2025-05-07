@@ -130,23 +130,19 @@ def edit_report(request):
         # Process the form data and update the status for each report
         for key, value in request.POST.items():
             if key.startswith("status_"):  # Check for status_<report_id>
-                report_id = key.split("_")[1]  # Extract the report ID from the name attribute (e.g., status_1 -> 1)
-                
-                if report_id.isdigit():  # Ensure the report ID is a valid number
-                    try:
-                        # Get the report by its ID
-                        report = MaintenanceRequest.objects.get(id=report_id)
-                        # Update the status of the report
-                        report.status = value
-                        report.save()  # Save the updated status
-                    except MaintenanceRequest.DoesNotExist:
-                        # If the report does not exist, you can choose to ignore or log it
-                        pass
-        
-        # After processing the form, redirect back to the reports page
-        return redirect('landlord:reports')  # This assumes you have a URL pattern named 'reports'
+                report_id = key.split("_")[1]  # Extract the report ID
 
-    # Retrieve the updated reports from the database
+                if report_id.isdigit():  # Ensure it's a valid number
+                    try:
+                        report = MaintenanceRequest.objects.get(id=report_id)
+                        report.status = value
+                        report.save()
+                    except MaintenanceRequest.DoesNotExist:
+                        pass
+
+        return redirect('landlord:reports')  # Redirect after update
+
+    # Retrieve updated reports
     report_data = []
     maintenance_requests = MaintenanceRequest.objects.select_related('tenant').prefetch_related('issues').all()
 
@@ -157,25 +153,46 @@ def edit_report(request):
             tenant_match = Tenant.objects.select_related('room_number').filter(full_name__iexact=full_name).first()
 
             if tenant_match:
-                # Join issue names into a string
                 issue_names = ", ".join([issue.name for issue in request_obj.issues.all()])
-
                 report_data.append({
                     'room_number': tenant_match.room_number.room_number,
                     'full_name': tenant_match.full_name,
                     'issue': issue_names or 'No issue listed',
                     'date_reported': request_obj.requested_at,
-                    'status': request_obj.get_status_display(),  # Use the human-readable status
-                    'id': request_obj.id,  # Make sure to include the report's ID for form processing
+                    'status': request_obj.get_status_display(),
+                    'id': request_obj.id,
                 })
 
-    # Pass the report data to the template
-    context = {'reports': report_data}
+    # 🔔 Add unread message count for superusers
+    if request.user.is_superuser:
+        unread_messages_count = ChatMessage.objects.filter(
+            receiver=request.user, is_read=False
+        ).count()
+    else:
+        unread_messages_count = 0
+
+    context = {
+        'reports': report_data,
+        'unread_messages_count': unread_messages_count,
+    }
+
     return render(request, 'dashboard/edit_report.html', context)
+
 
 def payments(request):
     payments = Payment.objects.all().order_by('-date')
-    return render(request, 'dashboard/payments.html', {'payments': payments})
+
+    if request.user.is_superuser:
+        unread_messages_count = ChatMessage.objects.filter(
+            receiver=request.user, is_read=False
+        ).count()
+    else:
+        unread_messages_count = 0
+
+    return render(request, 'dashboard/payments.html', {
+        'payments': payments,
+        'unread_messages_count': unread_messages_count,
+    })
 
 class RoomListView(ListView):
     model = Room
@@ -208,12 +225,31 @@ class RoomListView(ListView):
         context['vacant_count'] = Room.objects.filter(availability='Vacant').count()
         
         context['pending_requests'] = MaintenanceRequest.objects.filter(status='pending')
+        
+        if self.request.user.is_superuser:
+            context['unread_messages_count'] = ChatMessage.objects.filter(
+                receiver=self.request.user, is_read=False
+            ).count()
+        else:
+            context['unread_messages_count'] = 0
 
         return context
     
 def tenants(request):
     tenants = Tenant.objects.all().order_by('room_number__room_number')
-    return render(request, 'dashboard/tenants.html', {'tenants': tenants})
+
+    if request.user.is_superuser:
+        unread_messages_count = ChatMessage.objects.filter(
+            receiver=request.user, is_read=False
+        ).count()
+    else:
+        unread_messages_count = 0
+
+    return render(request, 'dashboard/tenants.html', {
+        'tenants': tenants,
+        'unread_messages_count': unread_messages_count,
+    })
+
 
 class TenantCreateView(CreateView):
     model = Tenant
@@ -275,7 +311,15 @@ def sales(request):
     
     paid_count = Payment.objects.filter(status__iexact='paid').count()
     overdue_count = Payment.objects.filter(status__iexact='overdue').count()
-
+    
+    if request.user.is_superuser:
+        unread_messages_count = ChatMessage.objects.filter(
+            receiver=request.user, is_read=False
+        ).count()
+    else:
+        unread_messages_count = 0
+        
+        
     return render(
         request, 
         'dashboard/sales.html', 
@@ -286,6 +330,7 @@ def sales(request):
             'room_counts': json.dumps(room_counts),
             'paid_count': paid_count,
             'overdue_count': overdue_count,
+            'unread_messages_count': unread_messages_count,
         }
     )
 
@@ -298,6 +343,20 @@ class AddRoomView(CreateView):
 
     def form_valid(self, form):
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # 🔔 Add unread message count for superusers
+        if self.request.user.is_superuser:
+            context['unread_messages_count'] = ChatMessage.objects.filter(
+                receiver=self.request.user, is_read=False
+            ).count()
+        else:
+            context['unread_messages_count'] = 0
+
+        return context
+
 
 
 
@@ -359,7 +418,18 @@ def edit_room(request, room_id):
     else:
         form = RoomForm(instance=room)
 
-    return render(request, 'dashboard/edit_room.html', {'form': form})
+    # 🔔 Add unread message count for superusers
+    if request.user.is_superuser:
+        unread_messages_count = ChatMessage.objects.filter(
+            receiver=request.user, is_read=False
+        ).count()
+    else:
+        unread_messages_count = 0
+
+    return render(request, 'dashboard/edit_room.html', {
+        'form': form,
+        'unread_messages_count': unread_messages_count,
+    })
 
 
 
