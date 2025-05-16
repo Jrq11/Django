@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+from decouple import config
 from pathlib import Path
 import os
 import dj_database_url
@@ -22,10 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 #SECRET_KEY = 'django-insecure-c3+tz%97ac*8eya&-=c5!dzdt!i#$&%0d%bps-+gu!wm9h66(#'
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-c3+tz%97ac*8eya&-=c5!dzdt!i#$&%0d%bps-+gu!wm9h66(#')
-DEBUG = True
+SECRET_KEY = config('SECRET_KEY')
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['192.168.1.7', '127.0.0.1', '192.168.1.5', '.onrender.com', 'ACPortal.onrender.com']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 
 # Application definition
