@@ -127,12 +127,11 @@ def reports(request):
 
 def edit_report(request):
     if request.method == 'POST':
-        # Process the form data and update the status for each report
         for key, value in request.POST.items():
-            if key.startswith("status_"):  # Check for status_<report_id>
-                report_id = key.split("_")[1]  # Extract the report ID
+            if key.startswith("status_"):
+                report_id = key.split("_")[1]
 
-                if report_id.isdigit():  # Ensure it's a valid number
+                if report_id.isdigit():
                     try:
                         report = MaintenanceRequest.objects.get(id=report_id)
                         report.status = value
@@ -140,9 +139,7 @@ def edit_report(request):
                     except MaintenanceRequest.DoesNotExist:
                         pass
 
-        return redirect('landlord:reports')  # Redirect after update
-
-    # Retrieve updated reports
+        return redirect('landlord:reports')
     report_data = []
     maintenance_requests = MaintenanceRequest.objects.select_related('tenant').prefetch_related('issues').all()
 
@@ -347,7 +344,6 @@ class AddRoomView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # 🔔 Add unread message count for superusers
         if self.request.user.is_superuser:
             context['unread_messages_count'] = ChatMessage.objects.filter(
                 receiver=self.request.user, is_read=False
@@ -356,9 +352,6 @@ class AddRoomView(CreateView):
             context['unread_messages_count'] = 0
 
         return context
-
-
-
 
 def user_login(request):
     
@@ -381,8 +374,6 @@ def user_login(request):
 
     
     return render(request, 'dashboard/login.html')
-
-
 
 def signup(request):
     if request.method == 'POST':
@@ -418,7 +409,6 @@ def edit_room(request, room_id):
     else:
         form = RoomForm(instance=room)
 
-    # 🔔 Add unread message count for superusers
     if request.user.is_superuser:
         unread_messages_count = ChatMessage.objects.filter(
             receiver=request.user, is_read=False
@@ -492,7 +482,7 @@ class LandlordChatView(View):
 
             full_name = f"{selected_tenant.first_name} {selected_tenant.last_name}".strip()
             try:
-                tenant_record = Tenant.objects.get(full_name__iexact=full_name)
+                tenant_record = Tenant.objects.get(user=selected_tenant)
                 room_number = tenant_record.room_number.room_number
             except Tenant.DoesNotExist:
                 room_number = None
@@ -512,7 +502,7 @@ def send_receipt_email(payment):
     recipient_email = payment.tenant.user.email
 
     subject = f"Receipt for Payment {payment.reference_number}"
-    html_message = render_to_string('dashboard/email_reciept.html', {'payment': payment})
+    html_message = render_to_string('dashboard/reciept2.html', {'payment': payment})
     plain_message = strip_tags(html_message)
 
     send_mail(

@@ -11,13 +11,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.user = self.scope["user"]
         self.room_group_name = f"chat_{self.user.id}"
 
-        # Add the user to the group
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
         print(f"✅ WebSocket connected: {self.user.username}")
 
     async def disconnect(self, close_code):
-        # Remove the user from the group when they disconnect
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
         print(f"❌ WebSocket disconnected: {self.user.username}")
 
@@ -31,18 +29,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         print(f"📩 Received message: {message} from {sender} to {receiver_id}")
 
         try:
-            # Fetch receiver
             receiver = await sync_to_async(User.objects.get)(id=receiver_id)
 
-            # Create the chat message, marked as unread for the receiver
             chat_message = await sync_to_async(ChatMessage.objects.create)(
                 sender=sender,
                 receiver=receiver,
                 message=message,
-                is_read=False  # New message is unread
+                is_read=False
             )
 
-            # Send the message to the sender's group
             await self.channel_layer.group_send(
                 f"chat_{sender.id}",
                 {
@@ -54,7 +49,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-            # Send the message to the receiver's group
             await self.channel_layer.group_send(
                 f"chat_{receiver.id}",
                 {
@@ -70,7 +64,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print(f"❌ Receiver with ID {receiver_id} not found.")
 
     async def chat_message(self, event):
-        # Send the message to WebSocket
         await self.send(text_data=json.dumps(event))
 
     async def mark_as_read(self, data):
@@ -80,12 +73,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             receiver_id=receiver_id,
             is_read=False
         )
-        # Mark all unread messages as read
         for message in messages:
             message.is_read = True
             message.save()
 
-        # Send a message to the receiver's group that their messages are now read
         await self.channel_layer.group_send(
             f"chat_{receiver_id}",
             {

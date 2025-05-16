@@ -33,11 +33,11 @@ class UserProfileForm(forms.ModelForm):
         ]
         widgets = {
             'birthday': forms.DateInput(attrs={'type': 'date'}),
-            'address': forms.TextInput(),  # changed from Textarea to fit your layout
-            'guardian_address': forms.TextInput(),  # same here
+            'address': forms.TextInput(),
+            'guardian_address': forms.TextInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super(UserProfileForm, self).__init__(*args, **kwargs)
         for field in self.fields.values():
-            field.required = False  # make all fields optional
+            field.required = False

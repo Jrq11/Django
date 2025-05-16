@@ -31,21 +31,17 @@ class TenantForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Check if we are editing an existing Tenant or creating a new one
         if self.instance and self.instance.pk:
-            # For existing tenants, filter by 'Occupied' rooms
             self.fields['room_number'].queryset = Room.objects.filter(availability='Occupied').order_by('room_number')
-            self.fields['room_number'].initial = self.instance.room_number  # Set initial value to current room
-            self.fields['room_number'].required = False  # Room is not required when editing existing tenant
+            self.fields['room_number'].initial = self.instance.room_number
+            self.fields['room_number'].required = False
         else:
-            # For new tenants, filter by 'Vacant' rooms
             self.fields['room_number'].queryset = Room.objects.filter(availability='Vacant').order_by('room_number')
-            self.fields['room_number'].required = True  # Room is required for new tenants
+            self.fields['room_number'].required = True
 
 class PaymentForm(forms.ModelForm):
     class Meta:
         model = Payment
         fields = ['tenant', 'amount', 'date', 'status', 'reference_number']
 
-    # You can exclude 'tenant' from the form, as you'll handle it with JS
     tenant = forms.ModelChoiceField(queryset=None, widget=forms.HiddenInput(), required=False)

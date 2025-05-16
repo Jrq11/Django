@@ -6,15 +6,14 @@ from decimal import Decimal
 
 @receiver(post_save, sender=Tenant)
 def update_room_availability_on_tenant_save(sender, instance, **kwargs):
-    room = instance.room_number  # Access the associated Room object
-    room.availability = 'Occupied'  # Set room availability to 'Active' when tenant is saved
+    room = instance.room_number
+    room.availability = 'Occupied'
     room.save()
 
-# Signal to update room availability when a Tenant is deleted
 @receiver(post_delete, sender=Tenant)
 def update_room_availability_on_tenant_delete(sender, instance, **kwargs):
-    room = instance.room_number  # Access the associated Room object
-    room.availability = 'Vacant'  # Set room availability to 'Vacant' when tenant is deleted
+    room = instance.room_number
+    room.availability = 'Vacant'
     room.save()
     
 @receiver(post_save, sender=Payment)

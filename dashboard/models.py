@@ -33,7 +33,7 @@ class Room(models.Model):
         return f"Room {self.room_number} - {self.room_type}"
     
 class Tenant(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # Linking User to Tenant
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)  # Linking User to Tenant
     room_number = models.ForeignKey(Room, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -42,7 +42,6 @@ class Tenant(models.Model):
     emergency_contact = models.CharField(max_length=15)
 
     def clean(self):
-        # Validation for matching names
         if self.user:
             full_name_from_user = f"{self.user.first_name} {self.user.last_name}"
             if self.full_name != full_name_from_user:
@@ -64,18 +63,16 @@ class Tenant(models.Model):
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        # If tenant is deleted, also delete associated user
         if self.user:
             self.user.delete()
 
-        # Set room availability back to 'Vacant'
         self.room_number.availability = 'Vacant'
         self.room_number.save()
 
         super().delete(*args, **kwargs)
 
     def _calculate_end_date(self):
-        base_amount = 2500  # Base amount for lease calculation
+        base_amount = 2500
         months_duration = int(self.amount // base_amount)
 
         if months_duration > 0:

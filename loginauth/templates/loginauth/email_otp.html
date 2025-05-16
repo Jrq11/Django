@@ -16,7 +16,7 @@
             </div>
             <h2>AUTHENTICATION</h2>
             <p class="auth-subtext">This step shows that it's really you trying to sign in.</p>
-
+            
             <p class="input-instruction">
                 Enter the authentication code sent to <strong id="maskedEmail">{{ user.email|default:"your email" }}</strong>
             </p>
@@ -32,7 +32,7 @@
                     <input type="text" maxlength="1" name="otp" class="otp-input" id="otp6" required>
                     <input type="hidden" name="otp_combined" id="otp_combined">
                 </div>
-
+                <small>Can't find OTP? Check your spam.</small>
                 <p class="resend-text">
                     Didn't receive the email? <a href="{% url 'resend_otp' %}">Resend</a>
                 </p>

@@ -11,9 +11,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     if not instance.is_superuser:
-        # Ensure the user profile is saved for non-superusers whenever the User instance is saved
         try:
             instance.tenant_profile.save()
         except UserProfile.DoesNotExist:
-            # If no profile exists (it may not be created yet), handle it by creating it
             UserProfile.objects.create(user=instance)
