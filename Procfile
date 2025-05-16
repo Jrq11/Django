@@ -1,1 +1,1 @@
-web: gunicorn rms.wsgi:application
+web: gunicorn rms.wsgi
